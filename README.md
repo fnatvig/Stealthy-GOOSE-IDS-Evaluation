@@ -31,24 +31,29 @@ Injected packets were assigned a different VLAN priority during dataset generati
 
 ## Reproducibility
 
-Install dependencies:
+Make sure you have python 3.10.11 installed on your system. To create virtual environment and install dependencies, run:
 ```
-pip install -r requirements.txt
+.\setup_venv.bat
 ```
 
-Run:
+### Results
+To reproduce table 3 and figure 4 from the paper, run:
 ```
-python scripts/extract_features.py
 python scripts/run_evaluation.py
-python scripts/plot_results.py
+```
+
+### Figures
+To reproduce figure 2 and figure 3 from the paper, run:
+```
+python scripts/plot_data.py
 ```
 
 ## Dataset
 
 All traces:
 - ~1200 seconds duration  
-- Identical switching scenario  
-- Differ only in attacker behavior, ensuring controlled comparison across scenarios.
+- Identical switching scenario for all test traces (Test-L1, Test-L2 and Test-L3), while different for Test.   
+- Test-L1, Test-L2 and Test-L3 differ only in attacker behavior, ensuring controlled comparison across scenarios.
 
 ## Reference
 
