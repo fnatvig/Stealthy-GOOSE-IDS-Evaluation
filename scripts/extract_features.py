@@ -158,7 +158,7 @@ def compute_stream_features_lahza(g: pd.DataFrame, wnd_size: float = 2.0, trim_w
         avg_length[i] = (ps_length[i + 1] - ps_length[L]) / window_len
 
         cur_st = st[i]
-        prev_st = cur_st - 1  # Lahza: previous event is stNum-1
+        prev_st = cur_st - 1
         same_event[i] = c_st.get(cur_st, 0)
         prev_event[i] = c_st.get(prev_st, 0)
         other_event[i] = window_len - same_event[i] - prev_event[i]
@@ -242,7 +242,6 @@ def preprocess_file(in_path: str, out_path: str, wnd_size: float = 2.0, trim_war
 
     df_out = pd.concat(all_parts, ignore_index=True) if all_parts else pd.DataFrame(columns=FEATURE_COLS + ["packet_id", "stream_key", "label"])
 
-    # Fixed column order for your continuation
     df_out = df_out[FEATURE_COLS + ["EpochArrivalTime", "packet_id", "stream_key", "label"]].copy()
 
 

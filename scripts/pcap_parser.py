@@ -55,7 +55,6 @@ def extract_goose_fields(pkt):
         "Destination": getattr(ether, "dst", None),
         "Length": int(getattr(pkt, "length", 0) or 0),
         "EpochArrivalTime": pkt.sniff_time.timestamp(),
-        # "timeInterval": getattr(frame, "time_delta", None),
     }
     return row
 
@@ -102,7 +101,7 @@ def pcapng_to_json(pcapng_file):
 
     df = pd.DataFrame(rows)
 
-    # Ensure EpochArrivalTime exists (kept for parity with your original)
+    # Ensure EpochArrivalTime exists
     df["EpochArrivalTime"] = df["EpochArrivalTime"]
     
     def get_time_interval(df):

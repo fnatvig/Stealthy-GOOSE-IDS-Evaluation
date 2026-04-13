@@ -132,7 +132,7 @@ r_b_avg_smooth = centered_moving_average(r_b_avg, SMOOTH_BINS)
 r_b_total = r_b
 r_b_total_smooth = centered_moving_average(r_b_total, SMOOTH_BINS)
 
-fig, ax = plt.subplots(figsize=(3.5, 2.0))
+fig, ax = plt.subplots(figsize=(3.5, 2.0), dpi=300)
 
 for (s, e) in switch_windows:
     ax.axvspan(s, e, color="tab:blue", alpha=SWITCH_ALPHA, linewidth=0)
@@ -260,11 +260,9 @@ def load_case(xlsx_path):
     tmin = float(np.min(t))
     tmax = float(np.max(t))
 
-    # Benign: average per-stream rate
+    # Benign: total packet rate
     x_b, r_b = compute_rate(t, mask=is_benign, bin_s=BIN_S, tmin=tmin, tmax=tmax)
-    n_benign_streams = df.loc[~df["label"], "gocbRef"].nunique()
-    r_b_avg = r_b / max(n_benign_streams, 1)
-    r_b_avg = centered_moving_average(r_b_avg, SMOOTH_BINS)
+    r_b_total = centered_moving_average(r_b, SMOOTH_BINS)
 
     # Attack: total injected rate
     x_a, r_a = compute_rate(t, mask=is_attack, bin_s=BIN_S, tmin=tmin, tmax=tmax)
@@ -277,7 +275,7 @@ def load_case(xlsx_path):
         "df": df,
         "switch_windows": switch_windows,
         "x_b": x_b,
-        "r_b_avg": r_b_avg,
+        "r_b_total": r_b_total,
         "x_a": x_a,
         "r_a": r_a,
         "tmin": tmin,
@@ -289,8 +287,8 @@ cases = [(label, load_case(path)) for path, label in FILES]
 # Shared y-limit across rows
 ymax = 0.0
 for _, c in cases:
-    if len(c["r_b_avg"]):
-        ymax = max(ymax, float(np.max(c["r_b_avg"])))
+    if len(c["r_b_total"]):
+        ymax = max(ymax, float(np.max(c["r_b_total"])))
     if len(c["r_a"]):
         ymax = max(ymax, float(np.max(c["r_a"])))
 ymax *= 1.08
@@ -309,10 +307,11 @@ if XMAX is not None:
 fig, axes = plt.subplots(
     nrows=1,
     ncols=3,
-    figsize=(7.2, 2.2),
+    figsize=(5.2, 1.7),
     sharex=True,
     sharey=True,
-    constrained_layout=True
+    constrained_layout=True,
+    dpi=300
 )
 
 short_labels = ["(a) Level 1", "(b) Level 2", "(c) Level 3"]
@@ -321,8 +320,17 @@ for ax, short_label, (label, c) in zip(axes, short_labels, cases):
     for (s, e) in c["switch_windows"]:
         ax.axvspan(s, e, color="tab:blue", alpha=SWITCH_ALPHA, linewidth=0)
 
-    ax.plot(c["x_b"], c["r_b_avg"], linewidth=1.3, alpha=0.9, label="Benign traffic")
-    ax.plot(c["x_a"], c["r_a"], linewidth=1.3, alpha=0.9, label="Attack traffic")
+    # Interpolate attack onto benign time grid if needed
+    r_total = c["r_b_total"].copy()
+    if len(c["r_a"]) and len(c["x_a"]) == len(c["x_b"]):
+        r_total = c["r_b_total"] + c["r_a"]
+    else:
+        # safer: interpolate
+        r_a_interp = np.interp(c["x_b"], c["x_a"], c["r_a"], left=0, right=0)
+        r_total = c["r_b_total"] + r_a_interp
+
+    ax.plot(c["x_b"], r_total, linewidth=0.9, label="Benign + attack", color='orange')
+    ax.plot(c["x_b"], c["r_b_total"], linewidth=0.9, alpha=0.9, label="Benign")
 
     ax.set_xlim(global_tmin, global_tmax)
     ax.set_ylim(0, ymax)
@@ -330,16 +338,17 @@ for ax, short_label, (label, c) in zip(axes, short_labels, cases):
     ax.text(
         0.02, 0.95, short_label,
         transform=ax.transAxes,
-        fontsize=7,
+        fontsize=4,
         va="top",
         ha="left",
         bbox=dict(boxstyle="round,pad=0.2", facecolor="white", edgecolor="0.8", alpha=0.9)
     )
 
-axes[0].set_ylabel("Packet rate (pps)")
+axes[0].set_ylabel("Total packet rate (pps)", fontsize=6)
 for ax in axes:
-    ax.set_xlabel("Time (s)")
+    ax.set_xlabel("Time (s)", fontsize=6)
+    ax.tick_params(axis='both', labelsize=4)
 
-axes[2].legend(loc="upper right", fontsize=7, frameon=True)
+axes[2].legend(loc="upper right", fontsize=4, frameon=True)
 
 plt.show()

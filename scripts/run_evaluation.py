@@ -110,7 +110,7 @@ def plot_tpr_bar_chart(results_df):
     bar_width = 0.35
     x = np.arange(len(datasets))
 
-    plt.figure(figsize=(3.5, 2.0))
+    plt.figure(figsize=(3.5, 2.0), dpi=300)
     # fig, ax = plt.subplots(figsize=(3.5, 2.0))
     for i, model in enumerate(models):
         subset = results_df[results_df["model"] == model]
@@ -143,7 +143,7 @@ def plot_tpr_bar_chart(results_df):
     plt.ylim(0, 1)
 
     plt.grid(axis="y", linestyle=":", linewidth=0.5, alpha=0.7)
-    plt.legend()
+    plt.legend(loc="upper right")
 
     plt.tight_layout()
 
