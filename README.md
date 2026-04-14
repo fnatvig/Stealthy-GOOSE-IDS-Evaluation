@@ -73,8 +73,15 @@ python scripts/extract_features.py --in data/xlsx/Test-L1-raw.xlsx --out data/xl
 ```
 The same procedure applies to all traces (Train, Test-L1, Test-L2, Test-L3).
 
+## Related repository
+
+Dataset generation (SASMaker):
+https://github.com/fnatvig/SASMaker/tree/isgt-data
+
 ## Reference
 
 Paper under review (IEEE ISGT 2026).
 
 Preprint will be added upon publication.
+
+
