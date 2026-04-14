@@ -118,9 +118,8 @@ def pcapng_to_json(pcapng_file):
             raise RuntimeError("Need raw_bytes to extract VLAN PCP (or precompute vlan_pcp in xlsx).")
         df["vlan_pcp"] = df["raw_bytes"].apply(vlan_pcp_from_raw)
 
+    # Labeling through VLAN PCP
     ids = list(df[df["vlan_pcp"] == 0].index)
-    # Indexes for malicious packets
-    # ids = [587, 1174, 1770]
     labels = [True if i in ids else False for i in range(len(df.index))]
     df = df.assign(label=labels)
 

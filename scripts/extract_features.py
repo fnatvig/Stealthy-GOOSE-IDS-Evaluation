@@ -1,4 +1,3 @@
-# preprocess_lahza_goose.py
 import argparse
 from collections import Counter
 import numpy as np
